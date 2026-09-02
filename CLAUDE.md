@@ -97,6 +97,12 @@ a `margin` shorthand in `bridge.css` had zeroed the alias sheet's negative side 
   configured `url`; on any other host CORS refuses every module script and every font, and the
   type falls back to something close enough that nobody looks twice. `tools/shot.sh` and
   `tools/measure.ts` both refuse the wrong origin.
+- **The zip's FILENAME is the theme id.** Not `package.json`. `bun run zip` writes
+  `quire-ink.zip` for that reason; a version in the name installs a second theme instead of
+  upgrading the one that is there.
+- **A theme upload cannot replace the dev stack's bind-mounted `quire-ink`.** Ghost answers 500,
+  and it is the mount rather than the theme: the same zip installs and activates cleanly on a
+  Ghost with nothing mounted. Test an upload on a throwaway instance, not on `dev/up.sh`.
 - **A new `.hbs` file needs Ghost restarted or the theme re-activated.** Edits to an existing
   template are live on the next request; a NEW template is not registered until Ghost re-reads
   the theme, and the symptom is that your page silently falls back to `index.hbs`.

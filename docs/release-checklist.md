@@ -34,11 +34,22 @@ irreversible price for a rule that does not exist here.
 audited including the three that only exist after a click; every control named; one defect
 found and fixed (the listing had no `h1`); one item fails and is upstream.
 
-**The zip is one command.** `bun run zip` runs every static guard first and refuses to package
-if any is red. Last build: **530 KB, 54 files, exactly one top-level directory** named
-`quire-ink`, which is what Ghost takes the theme id from. It goes into `.tmp/`, which is
-gitignored — a release artefact committed to the repository is a second source of truth for the
-same bytes.
+**The zip is one command, and it installs.** `bun run zip` runs every static guard first and
+refuses to package if any is red. Last build: **530 KB, 54 files, exactly one top-level
+directory**. It goes into `.tmp/`, which is gitignored — a release artefact committed to the
+repository is a second source of truth for the same bytes.
+
+Verified through the **real install path** rather than by inspection: uploaded to a clean Ghost
+6.62 with nothing mounted, through the same admin endpoint the Design screen posts to. It
+reports `name: quire-ink`, 0 errors and the one accepted warning, activates, and the site then
+renders with the theme's own stylesheet.
+
+**And the filename is the theme id, not `package.json`.** Measured, because the first build got
+it wrong: `quire-ink-0.1.0.zip` installed a theme called `quire-ink-0.1.0` sitting BESIDE the
+existing `quire-ink`, both reporting `package.name: quire-ink`. A version in the filename turns
+every upgrade into a second theme the owner has to activate and then delete. The zip is
+`quire-ink.zip`, and the version stays in `package.json`, which is where Ghost reads the one it
+displays.
 
 ## Open, and only the owner can close them
 

@@ -14,7 +14,16 @@ import { mkdir, rm } from 'node:fs/promises'
 
 const ROOT = join(import.meta.dir, '..')
 const pkg = await Bun.file(join(ROOT, 'quire-ink', 'package.json')).json()
-const out = join(ROOT, '.tmp', `quire-ink-${pkg.version}.zip`)
+// NAMED FOR THE THEME, NOT FOR THE RELEASE. Ghost takes the theme's id from the ZIP'S
+// FILENAME, not from package.json — measured on Ghost 6.62 by uploading through the real admin
+// endpoint: `quire-ink-0.1.0.zip` installed a theme called `quire-ink-0.1.0` sitting BESIDE the
+// existing `quire-ink`, both reporting `package.name: quire-ink`.
+//
+// So a version in the filename turns every upgrade into a second theme the owner has to
+// activate and then delete, with the old one still on disk. `quire-ink.zip` replaces what is
+// there, which is what an upgrade is. The version lives in package.json, which is where Ghost
+// reads the one it displays.
+const out = join(ROOT, '.tmp', `${pkg.name}.zip`)
 
 const checks = await $`bun run check:all`.cwd(ROOT).nothrow()
 if (checks.exitCode !== 0) {
@@ -29,5 +38,5 @@ await rm(out, { force: true })
 await $`zip -r -q ${out} quire-ink -x '*.DS_Store' -x '__MACOSX/*'`.cwd(ROOT)
 
 const size = Bun.file(out).size
-console.log(`zip: ${out}  ${(size / 1024).toFixed(0)} KB  (quire-ink ${pkg.version})`)
+console.log(`zip: ${out}  ${(size / 1024).toFixed(0)} KB  (${pkg.name} ${pkg.version})`)
 console.log('     Ghost → Settings → Design → Change theme → Upload theme')
