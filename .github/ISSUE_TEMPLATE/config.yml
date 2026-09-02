@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: The blog engine
+    url: https://github.com/joiha-steven/quireink
+    about: Colours, sizes, type and the reading design itself live upstream — a fix there reaches this theme, the WordPress port and the blog.
+  - name: The same reading surface, on WordPress
+    url: https://github.com/joiha-steven/quireink-wordpress-theme
+    about: The sibling port. Different platform, same sheet, and often the same problem solved first.

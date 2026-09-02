@@ -15,6 +15,8 @@ No font host, no analytics, no request the theme makes off your own domain.
 ![121 KB an article](https://img.shields.io/badge/first%20article-121%20KB-22c55e)
 ![License: PolyForm NC](https://img.shields.io/badge/License-PolyForm_Noncommercial-blue)
 
+**English** · [Tiếng Việt](./README.vi.md)
+
 [**Quire Ink**](https://quireink.com) ·
 [**the engine**](https://github.com/joiha-steven/quireink) ·
 [**the WordPress port**](https://github.com/joiha-steven/quireink-wordpress-theme) ·
@@ -72,7 +74,7 @@ font files a Latin or Vietnamese browser actually fetches out of the twenty-one 
 | Scripts (three, gzipped) | 15.4 KB |
 | Fonts (the two faces a first article needs) | 53.8 KB |
 | **A first article** | **121.2 KB** |
-| The theme folder, as uploaded | 668 KB |
+| The theme folder, as uploaded | 674 KB |
 
 **One caveat, and it is not the theme's to fix.** Ghost itself injects Portal and its search
 script from `cdn.jsdelivr.net` on every page, whether or not a theme uses them. The theme adds
@@ -131,11 +133,18 @@ unlike the WordPress theme directory, requires nothing of a theme, so nothing mo
 away than the engine already gives. [ADR 0001](docs/decisions/0001-polyform-not-gpl.md) explains
 why this is deliberately *not* the sibling WordPress port's answer.
 
-The six typefaces are under the **SIL Open Font License 1.1**. That licence asks that its text
-travel with the font software, and this theme does not yet carry it —
-`quire-ink/assets/fonts/OFL.txt` has to be added before the theme is published anywhere. It is
-one file and it is the only thing standing between this repository and being shippable; it is
-not written here because a licence text is not something to reconstruct from memory.
+The six typefaces are under the **SIL Open Font License 1.1**, and its text travels with them
+in [`quire-ink/assets/fonts/OFL.txt`](quire-ink/assets/fonts/OFL.txt) — assembled from each
+family's own distribution and the canonical SIL text, verbatim.
 
-The same obligation is open in the Quire Ink engine and in the WordPress port, both of which
-ship the same six faces without it.
+## Docs
+
+| | |
+|---|---|
+| [`docs/appearance.md`](docs/appearance.md) | Every setting, its default, and what cannot be changed |
+| [`docs/accessibility.md`](docs/accessibility.md) | What was measured, and the one thing that fails |
+| [`docs/gaps.md`](docs/gaps.md) | What does not carry over, with the measurements |
+| [`docs/decisions/`](docs/decisions/README.md) | Five decisions, in force |
+| [`docs/invariants.md`](docs/invariants.md) | The nine load-bearing rules and the guard on each |
+| [`docs/release-checklist.md`](docs/release-checklist.md) | What is settled, and the two things only the owner can close |
+| [`CONTRIBUTING.md`](CONTRIBUTING.md) | How to change it without breaking the thing it copies |

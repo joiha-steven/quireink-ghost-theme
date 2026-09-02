@@ -16,7 +16,20 @@ visible in review.
 | 5 | **A class a template prints reaches a rule — or the engine prints it too.** The sheet already carries `.listing-head`, `.pager`, `.empty` and a few hundred more, and a name it does not carry renders perfectly and is styled by nothing | every template under [`quire-ink/`](../quire-ink) | `check:classes` |
 | 6 | **Quire Ink is READ ONLY.** This repository imports and reads its modules and writes nothing to it | [`tools/tsconfig.json`](../tools/tsconfig.json) | nothing — procedural, see [`../CLAUDE.md`](../CLAUDE.md) |
 | 7 | **Ghost's own linter is clean.** Zero errors; every warning that stands is listed by name with the decision that allows it | [`quire-ink/`](../quire-ink) | `check:gscan` |
-| 8 | **The page is right on the page.** No rule the theme ships is dropped by the parser, the wide figure sits where the engine puts it on both sides of the rail breakpoint, and no template overflows at 375px | the running theme | `check:live` — needs `dev/up.sh`, so it is NOT in `check:all` |
+| 8 | **The page is right on the page.** No rule the theme ships is dropped by the parser, the wide figure sits where the engine puts it on both sides of the rail breakpoint, and no template overflows at 375px | the running theme | `check:live` — needs a Ghost, so it is NOT in `check:all` |
+| 9 | **Every control a reader can reach has a name, and every page has exactly one `h1`.** Audited on seven surfaces, including the three that do not exist until something is clicked | the running theme | `check:a11y` — same, and both run in CI against Ghost 5 **and** Ghost 6 |
+
+## Why 8 and 9 are not in `check:all`
+
+Because `check:all` is offline and takes seconds, and a guard that needs Docker, a seeded Ghost
+and a browser would make it neither. Splitting them is not a way of taking them less seriously:
+[`.github/workflows/ci.yml`](../.github/workflows/ci.yml) runs both on every push, against a
+matrix of Ghost 5 and Ghost 6, because a verification tool that depends on somebody remembering
+to run it is the failure mode every guard in `tools/checks/` was written to kill.
+
+They also earn their keep. Between them they have caught a search overlay that answered "no
+matching posts" to every query, a wide figure crossing the contents rail by 18px, and a listing
+page with no `h1` at all — each of them on a day when all seven static guards were green.
 
 ## Why 1 is the first one
 

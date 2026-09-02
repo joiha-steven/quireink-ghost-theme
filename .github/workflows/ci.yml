@@ -1,0 +1,96 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  # The offline gate: seven guards, seconds, no browser and no Ghost.
+  #
+  # No `bun install`. This repository has no dependencies and therefore no lockfile — the only
+  # thing it fetches is `gscan`, which `check:gscan` runs through `npx --yes` because Ghost's
+  # linter is the one tool here that has to be Ghost's own version rather than a pinned copy.
+  #
+  # `check:generated` skips itself with a warning when there is no `../quireink` checkout, which
+  # is always the case here: the blog engine is a separate repository and this job is not the
+  # place to clone it. That check is a developer's tripwire for a re-extract, not a CI gate.
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.14
+      - run: bun run check:all
+
+  # THE BROWSER GUARDS, on both ends of the version floor.
+  #
+  # `engines.ghost` says `>=5.0.0`, which is a claim about both ends: the theme has to run on
+  # the oldest Ghost it admits AND on the newest one anybody will install it on today. Running
+  # this on one of them proves half a sentence.
+  #
+  # These two are the answer to what `check:all` cannot see. Every static guard was green on the
+  # day the listing page had no `h1` at all, on the day a wide figure crossed the contents rail
+  # by 18px, and on the day the search overlay answered "no matching posts" to every query. They
+  # live here rather than in a command somebody remembers to run, because a verification tool
+  # that depends on memory is the failure mode every guard in `tools/checks/` was written to
+  # kill.
+  #
+  # SEPARATE JOB from `check`, and a matrix rather than two steps: a theme that is consistent
+  # AND broken on Ghost 6 is a real state, and the log should be able to say which one.
+  #
+  # Chrome is preinstalled on ubuntu-latest at /usr/bin/google-chrome, which is what `CHROME`
+  # points `tools/browser.ts` at — the default is the macOS path most of this was written on.
+  browser:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - ghost: "5"
+            compose: dev/docker-compose.yml
+            port: "2368"
+          - ghost: "6"
+            compose: dev/docker-compose.ghost6.yml
+            port: "2369"
+    name: browser (Ghost ${{ matrix.ghost }})
+    env:
+      CHROME: /usr/bin/google-chrome
+      QUIREINK_ORIGIN: http://localhost:${{ matrix.port }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.14
+
+      - name: a Ghost with the theme mounted
+        run: docker compose -f ${{ matrix.compose }} up -d
+
+      # Ghost's first boot runs migrations and takes longer than the container takes to start.
+      # Polling the site is the only honest readiness signal; `docker compose up` returning is
+      # not one.
+      - name: wait for it
+        run: |
+          for _ in $(seq 1 90); do
+            if curl -fsS -o /dev/null "$QUIREINK_ORIGIN/"; then echo up; exit 0; fi
+            sleep 2
+          done
+          docker compose -f ${{ matrix.compose }} logs
+          exit 1
+
+      - name: owner, theme, content
+        run: ./dev/seed.sh
+
+      - run: bun run check:live
+      - run: bun run check:a11y
+
+      - name: what it was actually looking at
+        if: failure()
+        run: |
+          curl -s "$QUIREINK_ORIGIN/" | head -c 4000
+          docker compose -f ${{ matrix.compose }} logs --tail 60

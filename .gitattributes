@@ -1,0 +1,16 @@
+# Line endings, decided here rather than left to each machine's `core.autocrlf`.
+* text=auto eol=lf
+
+# The generated half is bytes, not text. `check:generated` re-runs the extractor and compares
+# byte for byte; a checkout that rewrote a newline would make that comparison fail on a machine
+# rather than on a change, which is the shape of a guard people learn to ignore.
+quire-ink/assets/css/quireink-*.css -text
+quire-ink/assets/js/core.js         -text
+quire-ink/assets/js/post.js         -text
+quire-ink/partials/generated-*.hbs  -text
+
+# Fonts, pictures and the licence text that must travel with the faces, untouched.
+*.woff2 binary
+*.png   binary
+*.jpg   binary
+quire-ink/assets/fonts/OFL.txt -text

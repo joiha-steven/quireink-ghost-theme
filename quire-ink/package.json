@@ -1,7 +1,6 @@
 {
   "name": "quire-ink",
   "description": "The reading surface of the Quire Ink blog engine, as a Ghost theme.",
-  "demo": "https://demo.quireink.com",
   "version": "0.1.0",
   "engines": {
     "ghost": ">=5.0.0"

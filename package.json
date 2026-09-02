@@ -5,7 +5,7 @@
   "scripts": {
     "extract": "bun tools/extract.ts",
     "zip": "bun tools/zip.ts",
-    "check:all": "bun run check:filesize && bun run check:order && bun run check:bridge && bun run check:contrast && bun run check:classes && bun run check:generated && bun run check:gscan",
+    "check:all": "bun run check:filesize && bun run check:order && bun run check:bridge && bun run check:contrast && bun run check:classes && bun run check:generated && bun run check:gscan && bun run check:docs",
     "check:filesize": "bun tools/checks/file-size.ts",
     "check:order": "bun tools/checks/stylesheet-order.ts",
     "check:bridge": "bun tools/checks/bridge-tokens.ts",
@@ -14,6 +14,7 @@
     "check:generated": "bun tools/checks/generated-in-sync.ts",
     "check:gscan": "bun tools/checks/gscan.ts",
     "check:live": "bun tools/checks/live.ts",
-    "check:a11y": "bun tools/checks/a11y.ts"
+    "check:a11y": "bun tools/checks/a11y.ts",
+    "check:docs": "bun tools/checks/docs.ts"
   }
 }
