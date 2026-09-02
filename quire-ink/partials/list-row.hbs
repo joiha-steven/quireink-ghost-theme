@@ -17,7 +17,18 @@ the timeline pass in ghost-bridge.js, before first paint. --}}
     </a>
     {{/match}}{{/if}}
     <p class="t-small text-meta"><time class="meta-part" datetime="{{date published_at format="YYYY-MM-DD"}}">{{date published_at}}</time> &middot; <span class="meta-part"><span class="num">{{reading_time minute="1" minutes="%"}}</span> min read</span></p>
+    {{!-- THE LEAD ROW TAKES THE H1, and that is the engine's own rule rather than a choice
+    made here: `leadPost` in its settings is "first post of page 1 gets the h1 role instead of
+    h2", it is on by default, and it is the only h1 a home feed has. Without it the front page
+    has no h1 at all and its first heading is an h2 — which is what `check:a11y` found.
+
+    `data-lead` is NOT printed. The engine sets it and no sheet in this theme or in the engine
+    styles it, and a hook that reaches no rule is the thing `check:classes` exists to stop. --}}
+    {{#if lead}}
+    <h1 class="reading-font mt-2 fs-h1 font-semibold"><a class="link-accent" href="{{url}}">{{title}}</a></h1>
+    {{else}}
     <h2 class="reading-font mt-2 fs-h2 font-semibold"><a class="link-accent" href="{{url}}">{{title}}</a></h2>
+    {{/if}}
     {{!-- 45 words, which is about the 280 characters the engine stores an excerpt at. Ghost
     cuts on a word boundary, so the bound shows as a shorter sentence and never as a broken
     one. --}}

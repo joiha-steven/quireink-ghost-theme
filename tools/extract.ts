@@ -248,10 +248,25 @@ await writeFile(join(THEME, 'assets', 'css', 'quireink-alias.css'),
 
 const FONT_SRC = join(QUIRE, 'src', 'assets', 'static', 'fonts')
 const FONT_DST = join(THEME, 'assets', 'fonts')
-await rm(FONT_DST, { recursive: true, force: true })
 await mkdir(FONT_DST, { recursive: true })
+// Only the faces. `OFL.txt` lives in this directory and is NOT generated — it is the licence
+// text the SIL Open Font License requires to travel with the font software, assembled from
+// each family's own distribution. An earlier version of this line was `rm -rf` on the whole
+// directory, which would have deleted it on the next run and shipped six OFL faces with no
+// licence: a violation that no check Ghost or anybody else runs would have reported.
+for (const stale of await readdir(FONT_DST)) {
+  if (stale.endsWith('.woff2')) await rm(join(FONT_DST, stale))
+}
 const faces = (await readdir(FONT_SRC)).filter((f) => f.endsWith('.woff2'))
 for (const f of faces) await copyFile(join(FONT_SRC, f), join(FONT_DST, f))
+
+// Shipping the faces without it is a licence violation whatever else is green, so this stops
+// the extract rather than letting a theme be built that cannot legally be published.
+if (!process.env.EXTRACT_OUT && !(await Bun.file(join(FONT_DST, 'OFL.txt')).exists())) {
+  throw new Error('extract: assets/fonts/OFL.txt is missing.\n'
+    + '  The SIL Open Font License requires its text to travel with the font software.\n'
+    + '  Rebuild it from each family\'s own distribution — see docs/release-checklist.md.')
+}
 
 // ---------------------------------------------------------------- the islands
 

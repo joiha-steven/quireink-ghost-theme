@@ -13,6 +13,7 @@
     "check:classes": "bun tools/checks/dead-classes.ts",
     "check:generated": "bun tools/checks/generated-in-sync.ts",
     "check:gscan": "bun tools/checks/gscan.ts",
-    "check:live": "bun tools/checks/live.ts"
+    "check:live": "bun tools/checks/live.ts",
+    "check:a11y": "bun tools/checks/a11y.ts"
   }
 }

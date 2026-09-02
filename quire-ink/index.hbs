@@ -11,7 +11,10 @@ reader with no JavaScript gets a plain list rather than a broken one. --}}
 
 {{#if posts}}
 <div class="post-list tl-feed">
-    {{#foreach posts}}{{> "list-row"}}{{/foreach}}
+    {{#foreach posts}}
+        {{~#if @first}}{{#is "home"}}{{> "list-row" lead=true}}{{else}}{{> "list-row"}}{{/is}}
+        {{~else}}{{> "list-row"}}{{/if~}}
+    {{/foreach}}
 </div>
 <script>quireink.timeline()</script>
 {{pagination}}

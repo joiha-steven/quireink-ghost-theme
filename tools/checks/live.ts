@@ -18,66 +18,16 @@
  *      symmetric negative margins that crossed the rail's own edge by 18px — and every number
  *      about it measured symmetric, which is why it took somebody looking at the page.
  */
-import { $ } from 'bun'
 import { join } from 'node:path'
+import { withPage, origins, ORIGIN } from '../browser'
 
-const ORIGIN = process.env.QUIREINK_ORIGIN ?? 'http://localhost:2368'
-const CHROME = process.env.CHROME
-  ?? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
-
-const alive = await fetch(ORIGIN).then((r) => r.ok).catch(() => false)
-if (!alive) {
+if (!await origins()) {
   console.log(`live: SKIP — nothing answering on ${ORIGIN}. Run dev/up.sh && dev/seed.sh.`)
   process.exit(0)
 }
 
-const port = 9222 + Math.floor(Math.random() * 500)
-const proc = Bun.spawn([CHROME, '--headless=new', '--disable-gpu', '--hide-scrollbars',
-  `--remote-debugging-port=${port}`, '--window-size=1440,1200',
-  '--user-data-dir=' + (await $`mktemp -d`.text()).trim(), 'about:blank'],
-  { stdout: 'ignore', stderr: 'ignore' })
-
-let ws: WebSocket
-try {
-  let target: any
-  for (let i = 0; i < 60 && !target; i++) {
-    try {
-      const list = await (await fetch(`http://127.0.0.1:${port}/json/list`)).json() as any[]
-      target = list.find((t) => t.type === 'page')
-    } catch { await Bun.sleep(200) }
-  }
-  if (!target) throw new Error('Chrome never opened a debugging port')
-
-  ws = new WebSocket(target.webSocketDebuggerUrl)
-  let id = 0
-  const waiting = new Map<number, (v: any) => void>()
-  ws.addEventListener('message', (e) => {
-    const msg = JSON.parse(String(e.data))
-    if (msg.id && waiting.has(msg.id)) { waiting.get(msg.id)!(msg); waiting.delete(msg.id) }
-  })
-  await new Promise((r) => ws.addEventListener('open', r))
-  const send = (method: string, params: any = {}) => new Promise<any>((resolve) => {
-    const n = ++id
-    waiting.set(n, resolve)
-    ws.send(JSON.stringify({ id: n, method, params }))
-  })
-  await send('Page.enable')
-
-  const at = async (url: string, width: number, expr: string): Promise<any> => {
-    await send('Emulation.setDeviceMetricsOverride',
-      { width, height: 1200, deviceScaleFactor: 1, mobile: width < 768 })
-    await send('Page.navigate', { url })
-    await Bun.sleep(2500)
-    const out = await send('Runtime.evaluate', {
-      expression: `JSON.stringify((() => (${expr}))())`,
-      returnByValue: true,
-      awaitPromise: true,
-    })
-    if (!out.result?.result?.value) throw new Error(JSON.stringify(out.result).slice(0, 500))
-    return JSON.parse(out.result.result.value)
-  }
-
-  const problems: string[] = []
+const summary = await withPage(async (at) => {
+const problems: string[] = []
   const post = `${ORIGIN}/every-card-koenig-can-write/`
 
   // ---- 1. nothing the theme ships was dropped by the parser -------------------------------
@@ -156,14 +106,13 @@ try {
     if (o.o > 0) problems.push(`375px ${path}: ${o.o}px of horizontal overflow`)
   }
 
-  if (problems.length) {
-    console.error('live: WRONG ON THE PAGE\n  ' + problems.join('\n  '))
-    process.exit(1)
-  }
   const total = Object.values(parsed).reduce((a, b) => a + (b as number), 0)
-  console.log(`live: ${total} rules kept by the browser · wide figure flush beside the rail,`
-    + ' noses right ' + wide.nosesRight + 'px · no overflow at 375 on 4 templates')
-} finally {
-  ws!?.close()
-  proc.kill()
+  return { problems, total, nosesRight: wide.nosesRight }
+})
+
+if (summary.problems.length) {
+  console.error('live: WRONG ON THE PAGE\n  ' + summary.problems.join('\n  '))
+  process.exit(1)
 }
+console.log(`live: ${summary.total} rules kept by the browser · wide figure flush beside the`
+  + ` rail, noses right ${summary.nosesRight}px · no overflow at 375 on 4 templates`)

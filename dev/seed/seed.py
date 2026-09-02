@@ -10,9 +10,11 @@ The card markup is Ghost's own RENDERED output, pasted in as html. Ghost keeps i
 in an html card, so what reaches the page is byte for byte what a card written in the editor
 produces — which is the markup bridge.css is aimed at, and the only thing worth testing.
 """
-import json, sys, urllib.request, urllib.error, datetime, random
+import json, os, sys, urllib.request, urllib.error, datetime, random
 
-BASE = "http://localhost:2368"
+# The floor and the ceiling both get seeded from here. `QUIREINK_ORIGIN=http://localhost:2369`
+# points it at the Ghost 6 stack beside the Ghost 5 one.
+BASE = os.environ.get("QUIREINK_ORIGIN", "http://localhost:2368")
 EMAIL, PASSWORD, NAME = "owner@localhost.dev", "quire-ink-dev-2026", "Quire Ink"
 TITLE = "A blog you host yourself"
 

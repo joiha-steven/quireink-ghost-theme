@@ -1,0 +1,25 @@
+# The CURRENT Ghost major, beside the floor the theme declares.
+#
+# `engines.ghost` says ">=5.0.0", and a floor is a claim about both ends: the theme has to run
+# on the oldest Ghost it admits AND on the newest one anybody will install it on. Ghost 6 is
+# what a new site gets today, so it is not optional to test.
+services:
+  ghost6:
+    image: ghost:6-alpine
+    restart: unless-stopped
+    ports:
+      - "2369:2368"
+    environment:
+      url: http://localhost:2369
+      NODE_ENV: development
+      database__client: sqlite3
+      database__connection__filename: /var/lib/ghost/content/data/ghost.db
+      database__useNullAsDefault: "true"
+      security__staffDeviceVerification: "false"
+      paths__contentPath: /var/lib/ghost/content
+    volumes:
+      - ghost6-content:/var/lib/ghost/content
+      - ../quire-ink:/var/lib/ghost/content/themes/quire-ink
+
+volumes:
+  ghost6-content:
