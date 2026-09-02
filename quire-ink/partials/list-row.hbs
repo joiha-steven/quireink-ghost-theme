@@ -18,5 +18,8 @@ the timeline pass in ghost-bridge.js, before first paint. --}}
     {{/match}}{{/if}}
     <p class="t-small text-meta"><time class="meta-part" datetime="{{date published_at format="YYYY-MM-DD"}}">{{date published_at}}</time> &middot; <span class="meta-part"><span class="num">{{reading_time minute="1" minutes="%"}}</span> min read</span></p>
     <h2 class="reading-font mt-2 fs-h2 font-semibold"><a class="link-accent" href="{{url}}">{{title}}</a></h2>
-    <p class="reading-font mt-3 t-body text-text">{{excerpt words="34"}}</p>
+    {{!-- 45 words, which is about the 280 characters the engine stores an excerpt at. Ghost
+    cuts on a word boundary, so the bound shows as a shorter sentence and never as a broken
+    one. --}}
+    <p class="reading-font mt-3 t-body text-text">{{excerpt words="45"}}</p>
 </article>

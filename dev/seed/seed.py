@@ -149,7 +149,10 @@ def main():
             "featured": featured,
             "published_at": date + "T09:00:00.000Z",
             "tags": [{"name": t} for t in tags],
-            "custom_excerpt": LOREM[i % len(LOREM)][:180],
+            # WHOLE SENTENCES. Sliced at a character count, every card on the front page
+            # stopped mid-word — which reads as a theme that truncates badly rather than as a
+            # seeder that does.
+            "custom_excerpt": LOREM[i % len(LOREM)],
         }]}
         call("/ghost/api/admin/posts/?source=html", body, cookie=cookie)
         made += 1
