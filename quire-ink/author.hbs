@@ -1,0 +1,24 @@
+{{!< default}}
+{{!-- One author, and what they have written. --}}
+<div class="with-rail"><main id="content">
+
+{{#author}}
+<header class="listing-head">
+    <h1>{{name}}</h1>
+    {{#if bio}}<div class="t-small text-meta">{{bio}}</div>{{/if}}
+</header>
+{{/author}}
+
+{{#if posts}}
+<div class="post-list tl-feed">
+    {{#foreach posts}}{{> "list-row"}}{{/foreach}}
+</div>
+<script>quireink.timeline()</script>
+{{pagination}}
+{{else}}
+{{> "none"}}
+{{/if}}
+
+</main>
+{{> "rail"}}
+</div>

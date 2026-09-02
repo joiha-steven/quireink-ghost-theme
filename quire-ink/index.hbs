@@ -1,0 +1,24 @@
+{{!< default}}
+{{!-- The list of posts, and the fallback every other template falls back to.
+
+`tl-feed` turns the list into the gutter timeline: a spine down the side, a sticky year tag
+beside the first post of each year, a month marker beside the first post of each month. The
+GROUPS are built by `quireink.timeline()` below, because grouping consecutive posts by year
+is state and Handlebars has none; everything after that is CSS positioned against cards that
+are already there. The sheet's first timeline rule is `.tl-mark,.tl-year{display:none}`, so a
+reader with no JavaScript gets a plain list rather than a broken one. --}}
+<div class="with-rail"><main id="content">
+
+{{#if posts}}
+<div class="post-list tl-feed">
+    {{#foreach posts}}{{> "list-row"}}{{/foreach}}
+</div>
+<script>quireink.timeline()</script>
+{{pagination}}
+{{else}}
+{{> "none"}}
+{{/if}}
+
+</main>
+{{> "rail"}}
+</div>

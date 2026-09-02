@@ -1,0 +1,69 @@
+{{!-- The document, and the parts of the page that are the same everywhere.
+
+The markup is Quire Ink's, element for element and class for class, because the stylesheet
+this theme ships is Quire Ink's and it binds to those names. Where Ghost wants a helper the
+helper goes in; where it wants a different shape, the shape here wins — a `<div class="wrap">`
+is not negotiable with a sheet that lays the page out from it. --}}
+<!DOCTYPE html>
+<html lang="{{@site.locale}}"
+    data-palette="{{@custom.palette}}"
+    {{#if @custom.terminal_chrome}}data-ide-chrome="on"{{/if}}>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{meta_title}}</title>
+
+    {{!-- THE ORDER IS LOAD-BEARING, and it is the blog engine's own: the static sheet, then
+    the generated half, which is generated precisely because it has to win. `.rail` is a
+    slide-out drawer in the base sheet and only the computed media query in the tokens sheet
+    promotes it into the desktop gutter. Enqueued the intuitive way round — variables first,
+    because everything reads them — the drawer rule wins on source order and the table of
+    contents silently never appears on any desktop screen. --}}
+    <link rel="stylesheet" href="{{asset "css/quireink-base.css"}}">
+    {{#if @custom.terminal_chrome}}<link rel="stylesheet" href="{{asset "css/quireink-ide.css"}}">{{/if}}
+    <link rel="stylesheet" href="{{asset "css/quireink-tokens.css"}}">
+    <link rel="stylesheet" href="{{asset "css/quireink-alias.css"}}">
+    <link rel="stylesheet" href="{{asset "css/bridge.css"}}">
+
+    {{!-- BLOCKING, and in the head, which is the one script in this theme that is. It
+    installs the shim that answers `/api/*` for the two copied bundles, and it defines the
+    two functions the inline calls further down the page make WHILE the parser is still
+    there — the contents rail and the timeline are built before first paint, so neither
+    arrives as a jump. 3 KB from the same origin, before anything is painted anyway. --}}
+    <script src="{{asset "js/ghost-bridge.js"}}"></script>
+
+    {{!-- LAST in the head, so the owner's own code injection wins. Ghost's card CSS also
+    lands here and is NOT a problem: every rule in bridge.css is scoped under `.prose`, so it
+    outranks an unscoped `.kg-*` rule on specificity and does not need to come after it. --}}
+    {{ghost_head}}
+</head>
+
+<body class="{{body_class}}"
+    data-default-scheme="{{@custom.default_scheme}}"
+    {{~> "generated-labels"}}
+    {{~#is "post, page"}}{{> "generated-labels-post"}}{{/is}}>
+
+{{#is "post"}}{{!-- Markup plus a scroll-driven CSS animation, with no script behind it: it
+works with JavaScript off and costs nothing on the main thread. `@supports` in the sheet
+hides it on an engine without scroll timelines, so the failure mode is absence. --}}
+<div class="progress" aria-hidden="true"><div class="progress-fill"></div></div>
+{{/is}}
+
+<div class="wrap{{#if @custom.book_typography}} book-text{{/if}}">
+{{> "site-header"}}
+
+{{{body}}}
+
+{{> "site-footer"}}
+</div>
+
+{{!-- Quire Ink's own reader bundles, copied byte for byte by tools/extract.ts. `core` is
+the chrome — palette switch, rail drawer, search overlay, sign-up, grid view; `post` is the
+article — contents scrollspy, book mode, lightbox, code copy. `post.js` is only loaded where
+there is an article for it to work on. --}}
+<script defer src="{{asset "js/core.js"}}"></script>
+{{#is "post, page"}}<script defer src="{{asset "js/post.js"}}"></script>{{/is}}
+
+{{ghost_foot}}
+</body>
+</html>

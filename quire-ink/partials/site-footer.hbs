@@ -1,0 +1,11 @@
+{{!-- One centred line, and nothing else — the blog engine's footer is the owner's own text.
+
+ONE CREDIT, and it can be switched off. THE WORDING IS "Quire Ink theme", not "powered by
+Quire Ink": the site is running Ghost, and Quire Ink is the theme on top of it. "Powered by"
+claims the blog engine, which is the one thing this is not. --}}
+<footer class="site">
+    {{navigation type="secondary"}}
+    <p class="footer-text">
+        &copy; {{date format="YYYY"}} {{@site.title}}{{#if @custom.footer_credit}} &middot; <a href="https://quireink.com" rel="noopener">Quire Ink theme</a>{{/if}}
+    </p>
+</footer>

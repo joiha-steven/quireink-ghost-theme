@@ -1,0 +1,24 @@
+{{!< default}}
+{{!-- A tag: a list of posts with a name over it. --}}
+<div class="with-rail"><main id="content">
+
+{{#tag}}
+<header class="listing-head">
+    <h1>{{name}}</h1>
+    {{#if description}}<div class="t-small text-meta">{{description}}</div>{{/if}}
+</header>
+{{/tag}}
+
+{{#if posts}}
+<div class="post-list tl-feed">
+    {{#foreach posts}}{{> "list-row"}}{{/foreach}}
+</div>
+<script>quireink.timeline()</script>
+{{pagination}}
+{{else}}
+{{> "none"}}
+{{/if}}
+
+</main>
+{{> "rail"}}
+</div>

@@ -1,0 +1,22 @@
+{{!-- One row in a list of posts.
+
+Class for class what the blog engine's listing emits: the date and the reading time are
+`.meta-part` spans in one `.t-small` line, the title is an h2 in the READING font at h2 size,
+and the excerpt is body text rather than meta — a list of headlines is reading, not furniture.
+
+`data-thumb` is what the sheet keys the two picture shapes off: `side` floats a 96px square
+and lets the words close up underneath it, `top` puts a 3:2 above them. It is only set when
+there is a picture to put there, so a row without one keeps the layout it already had.
+
+The `.tl-yr` groups and the `.tl-mark` month labels around and inside this row are added by
+the timeline pass in ghost-bridge.js, before first paint. --}}
+<article class="{{post_class}} reveal"{{#if feature_image}}{{#match @custom.list_thumbnails "!=" "none"}} data-thumb="{{@custom.list_thumbnails}}"{{/match}}{{/if}}>
+    {{#if feature_image}}{{#match @custom.list_thumbnails "!=" "none"}}
+    <a class="card-thumb" href="{{url}}" aria-hidden="true" tabindex="-1">
+        {{#match @custom.list_thumbnails "side"}}<img src="{{img_url feature_image size="xs"}}" alt="" loading="lazy" decoding="async">{{else}}<img src="{{img_url feature_image size="m"}}" alt="" loading="lazy" decoding="async">{{/match}}
+    </a>
+    {{/match}}{{/if}}
+    <p class="t-small text-meta"><time class="meta-part" datetime="{{date published_at format="YYYY-MM-DD"}}">{{date published_at}}</time> &middot; <span class="meta-part"><span class="num">{{reading_time minute="1" minutes="%"}}</span> min read</span></p>
+    <h2 class="reading-font mt-2 fs-h2 font-semibold"><a class="link-accent" href="{{url}}">{{title}}</a></h2>
+    <p class="reading-font mt-3 t-body text-text">{{excerpt words="34"}}</p>
+</article>

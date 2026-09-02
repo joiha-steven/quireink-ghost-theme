@@ -1,0 +1,15 @@
+{{!-- Newer, position, older — the pager the listing sheet already draws.
+
+`.pager` is the blog engine's own name for this block and its rule is where the separation
+lives: a rule across the top, 1rem under it, the two links pushed apart. The empty spans are
+what hold the count in the middle when only one side has a link.
+
+Page NUMBERS are not printed, because the engine does not print them: deep page numbers are
+URLs a crawler walks and a reader does not use. --}}
+{{#match pages ">" 1}}
+<nav class="pager" aria-label="Posts">
+    {{#if prev}}<a class="link-accent" href="{{page_url prev}}">Newer</a>{{else}}<span></span>{{/if}}
+    <span class="pager-count">{{page}} / {{pages}}</span>
+    {{#if next}}<a class="link-accent" href="{{page_url next}}">Older</a>{{else}}<span></span>{{/if}}
+</nav>
+{{/match}}

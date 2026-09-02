@@ -1,0 +1,17 @@
+{
+  "name": "quireink-ghost-theme",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "extract": "bun tools/extract.ts",
+    "zip": "bun tools/zip.ts",
+    "check:all": "bun run check:filesize && bun run check:order && bun run check:bridge && bun run check:contrast && bun run check:classes && bun run check:generated && bun run check:gscan",
+    "check:filesize": "bun tools/checks/file-size.ts",
+    "check:order": "bun tools/checks/stylesheet-order.ts",
+    "check:bridge": "bun tools/checks/bridge-tokens.ts",
+    "check:contrast": "bun tools/checks/contrast.ts",
+    "check:classes": "bun tools/checks/dead-classes.ts",
+    "check:generated": "bun tools/checks/generated-in-sync.ts",
+    "check:gscan": "bun tools/checks/gscan.ts"
+  }
+}

@@ -1,0 +1,124 @@
+{{!< default}}
+{{!-- One article.
+
+The order of the children of <article> is the sheet's, not a preference: the meta line and
+the h1 sit in a <header>, the same facts repeat in an <aside class="post-info"> that only
+desktop shows, the table of contents is a sibling rail, and the words live in
+`#post-body.prose`.
+
+THE BYLINE IS PRINTED TWICE, and that is the fix rather than the bug. `.post-meta` is hidden
+on desktop — the facts move to the right-hand column there — so a byline printed only in the
+meta line is invisible on every desktop screen.
+
+TWO THINGS ARE FILLED IN BY SCRIPT, both by `quireink.article()` immediately below the
+article body, while the parser is still standing there and before the page is painted:
+
+  · The TABLE OF CONTENTS. Ghost gives headings no ids and a Handlebars template cannot read
+    the rendered HTML it just printed, so the rail is built from `#post-body` — ids on the
+    h2/h3 by the engine's own slug rule, then the `<nav class="toc rail">` inserted before
+    the body. It has to be before first paint: the sheet's three-column layout keys off a
+    `.rail` being there, and a rail that arrives late is a page that jumps.
+  · The WORD COUNT. Ghost stores reading time and not word count; `{{reading_time}}` is the
+    platform's own number and is printed as it comes, but the count beside it is measured
+    off the rendered text the way the engine measures it off the source. --}}
+<div class="with-rail"><main id="content">
+
+{{#post}}
+<article class="{{post_class}}">
+
+{{#if @custom.post_feature_image}}{{#if feature_image}}
+{{!-- The picture goes ABOVE the headline, not under it, and it is off unless the owner asks.
+Both are the blog engine's calls: a hero under the title pushes the first sentence off a
+phone screen, and a default that switched pictures on would redesign every article a site had
+already published. --}}
+<div class="post-hero"><img src="{{img_url feature_image size="xl"}}" alt="{{#if feature_image_alt}}{{feature_image_alt}}{{else}}{{title}}{{/if}}" fetchpriority="high" decoding="async"></div>
+{{/if}}{{/if}}
+
+<header>
+<p class="t-small text-meta post-meta">
+    <time datetime="{{date published_at format="YYYY-MM-DD"}}">{{date published_at}}</time>
+    &middot; <span class="num" data-word-count></span> words
+    &middot; <span class="num">{{reading_time minute="1" minutes="%"}}</span> min read
+    {{#primary_author}} &middot; <span class="byline">{{name}}</span>{{/primary_author}}
+    <span class="meta-book"> &middot; <button type="button" class="book-mode-toggle" data-book-open>Book mode</button></span>
+</p>
+<h1 class="reading-font mt-2 fs-h1 font-semibold">{{title}}</h1>
+</header>
+
+<aside class="post-info t-small text-meta">
+    <p><time datetime="{{date published_at format="YYYY-MM-DD"}}">{{date published_at}}</time></p>
+    {{#primary_author}}<p class="byline">{{name}}</p>{{/primary_author}}
+    <p><span class="num" data-word-count></span> words</p>
+    <p><span class="num">{{reading_time minute="1" minutes="%"}}</span> min read</p>
+    {{#if tags}}<p class="info-terms">Tags: <span class="term-list">{{#foreach tags}}<a class="link-accent lower" href="{{url}}">{{name}}</a>{{#unless @last}}, {{/unless}}{{/foreach}}</span></p>{{/if}}
+    <p class="info-action"><button type="button" class="book-mode-toggle" data-book-open>Book mode</button></p>
+</aside>
+
+<div id="post-body" class="prose">{{content}}</div>
+<script>quireink.article()</script>
+
+{{#if tags}}
+<span class="anchor" id="post-tags"></span>
+<hr class="taxo-rule">
+<footer class="post-taxo t-small text-meta">
+    <p class="info-terms">Tags: <span class="term-list">{{#foreach tags}}<a class="link-accent lower" href="{{url}}">{{name}}</a>{{#unless @last}}, {{/unless}}{{/foreach}}</span></p>
+</footer>
+{{/if}}
+
+{{#prev_post}}
+<hr>
+<section class="read-next">
+    <p class="read-next-label">Read next</p>
+    <p class="read-next-title reading-font"><a class="link-accent" href="{{url}}">{{title}}</a></p>
+</section>
+{{/prev_post}}
+
+{{#if primary_tag}}
+{{#get "posts" filter="tags:{{primary_tag.slug}}+id:-{{id}}" limit="3" as |related|}}
+    {{#if related}}
+    <hr>
+    <section class="related">
+        <h2>Related posts</h2>
+        <ul>
+            {{#foreach related}}
+            <li>
+                <a class="link-accent" href="{{url}}">{{title}}</a>
+                <p class="t-small text-meta">{{date published_at}}</p>
+            </li>
+            {{/foreach}}
+        </ul>
+    </section>
+    {{/if}}
+{{/get}}
+{{/if}}
+
+</article>
+
+{{#if @site.members_enabled}}
+{{!-- The blog engine's sign-up card, at the end of an article. `core.js` intercepts the
+submit and posts to `/api/subscribe`; `ghost-bridge.js` turns that into Ghost's own
+`send-magic-link`, so the card is real rather than decorative. The header's mail control
+opens the same card as an overlay. --}}
+<section class="subscribe-card" id="subscribe">
+<h2>Subscribe to the newsletter</h2>
+<form class="subscribe" method="post" action="/api/subscribe">
+<input type="email" name="email" required aria-label="your@email.com" placeholder="your@email.com"><button type="submit">Subscribe</button>
+<input class="hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+</form>
+<p class="subscribe-status" role="status"></p>
+</section>
+{{/if}}
+
+{{#if @site.comments_enabled}}
+{{!-- Ghost's own thread, not the engine's. The engine's comment island mounts on `#comments`
+and this deliberately is not that id: Ghost has a comment system with sign-in, replies and
+moderation behind it, and a theme that shipped a second one would own the half of it Ghost
+already does better. docs/decisions/0004. --}}
+<section id="post-comments" class="post-comments">
+    {{comments title="Comments" count=false}}
+</section>
+{{/if}}
+
+{{/post}}
+
+</main></div>

@@ -1,0 +1,29 @@
+# A throwaway Ghost with the theme mounted live.
+#
+# `url` is http://localhost:2368 and NOTHING ELSE. Ghost writes every asset URL against it,
+# so the same page fetched on 127.0.0.1 loses every module script and every font to CORS —
+# no JavaScript at all, and the type falls back to something close enough that nobody looks
+# twice. That is a bug the WordPress port shipped for three rounds of screenshots.
+#
+# SQLite, in a named volume. `dev/down.sh` throws it away; nothing in here is worth keeping.
+services:
+  ghost:
+    image: ghost:5-alpine
+    restart: unless-stopped
+    ports:
+      - "2368:2368"
+    environment:
+      url: http://localhost:2368
+      NODE_ENV: development
+      database__client: sqlite3
+      database__connection__filename: /var/lib/ghost/content/data/ghost.db
+      database__useNullAsDefault: "true"
+      # A theme is uploaded as a zip in production; here it is a bind mount, so an edit is
+      # live on the next request and only a package.json change needs a restart.
+      paths__contentPath: /var/lib/ghost/content
+    volumes:
+      - ghost-content:/var/lib/ghost/content
+      - ../quire-ink:/var/lib/ghost/content/themes/quire-ink
+
+volumes:
+  ghost-content:

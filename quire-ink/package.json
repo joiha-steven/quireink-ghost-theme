@@ -1,0 +1,111 @@
+{
+  "name": "quire-ink",
+  "description": "The reading surface of the Quire Ink blog engine, as a Ghost theme.",
+  "demo": "https://demo.quireink.com",
+  "version": "0.1.0",
+  "engines": {
+    "ghost": ">=5.0.0"
+  },
+  "license": "PolyForm-Noncommercial-1.0.0",
+  "author": {
+    "name": "Quire Ink",
+    "url": "https://quireink.com",
+    "email": "hello@quireink.com"
+  },
+  "keywords": [
+    "ghost-theme",
+    "blog",
+    "reading",
+    "typography",
+    "dark-mode"
+  ],
+  "config": {
+    "posts_per_page": 20,
+    "image_sizes": {
+      "xs": {
+        "width": 160
+      },
+      "s": {
+        "width": 320
+      },
+      "m": {
+        "width": 600
+      },
+      "l": {
+        "width": 960
+      },
+      "xl": {
+        "width": 1400
+      },
+      "xxl": {
+        "width": 2000
+      }
+    },
+    "card_assets": true,
+    "custom": {
+      "palette": {
+        "type": "select",
+        "options": [
+          "mono",
+          "sepia",
+          "forest",
+          "ocean",
+          "scifi",
+          "amber"
+        ],
+        "default": "mono",
+        "description": "The colours the site opens in. All six ship in the stylesheet."
+      },
+      "reader_can_change_palette": {
+        "type": "boolean",
+        "default": true,
+        "description": "Offer the other five palettes to readers, remembered on their device."
+      },
+      "default_scheme": {
+        "type": "select",
+        "options": [
+          "system",
+          "light",
+          "dark"
+        ],
+        "default": "system",
+        "description": "What a first-time visitor sees before they choose for themselves."
+      },
+      "terminal_chrome": {
+        "type": "boolean",
+        "default": true,
+        "description": "Bracketed tokens instead of icons, and numbered rail rows."
+      },
+      "book_typography": {
+        "type": "boolean",
+        "default": false,
+        "description": "Indented paragraphs, justified lines, hyphenation at the break."
+      },
+      "list_thumbnails": {
+        "type": "select",
+        "options": [
+          "none",
+          "side",
+          "top"
+        ],
+        "default": "none",
+        "description": "Where a post's feature image goes in the list: beside or above the words."
+      },
+      "post_feature_image": {
+        "type": "boolean",
+        "default": false,
+        "description": "Show a post's feature image above its headline."
+      },
+      "show_tagline": {
+        "type": "boolean",
+        "default": true,
+        "description": "The site description, under the site name."
+      },
+      "footer_credit": {
+        "type": "boolean",
+        "default": true,
+        "description": "One line naming the theme, at the foot of the page."
+      }
+    }
+  }
+}

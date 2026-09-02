@@ -1,0 +1,15 @@
+{{!-- The site bar. Its controls are generated — see partials/generated-site-actions.hbs. --}}
+<header class="site">
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="site-bar">
+    <a class="title" href="{{@site.url}}">
+        {{~#if @site.logo~}}
+        <img class="logo" src="{{@site.logo}}" alt="{{@site.title}}" fetchpriority="high" decoding="async">
+        {{~else~}}
+        {{@site.title}}
+        {{~/if~}}
+    </a>
+    <div class="site-actions">{{> "generated-site-actions"}}</div>
+</div>
+{{#if @custom.show_tagline}}{{#if @site.description}}<p class="tagline">{{@site.description}}</p>{{/if}}{{/if}}
+</header>

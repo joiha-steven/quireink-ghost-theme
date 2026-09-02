@@ -1,0 +1,19 @@
+{{!< default}}
+{{!-- Not found. The search control in the header and the five most recent posts, because a
+bare 404 is a dead end and the reader who hit it was looking for something. --}}
+<div class="with-rail"><main id="content">
+
+<header class="listing-head">
+    <h1>That page is not here</h1>
+    <p class="t-small text-meta">The link may be old, or the address may have a typo in it.</p>
+</header>
+
+{{#get "posts" limit="5"}}
+<div class="post-list">
+    {{#foreach posts}}{{> "list-row"}}{{/foreach}}
+</div>
+{{/get}}
+
+</main>
+{{> "rail"}}
+</div>

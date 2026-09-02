@@ -1,0 +1,60 @@
+{{!-- The site's own furniture, in the left gutter.
+
+The blocks and their order are the blog engine's: menu, featured, tags. Each is skipped when
+it has nothing to say, so a new blog shows a short rail rather than three empty headings.
+
+TWO of the engine's five blocks are not here.
+  · Categories. Ghost has tags and nothing else, and inventing a taxonomy in a theme would
+    put content structure in the layer that is supposed to be about looks. The engine's TAG
+    block is the one that ships, lowercased and without counts, because that is what the
+    engine does with a tag.
+  · Archive. A year is a URL, and Ghost has no date route to point one at without a
+    `routes.yaml` the owner installs by hand — a site file, not something a theme can carry.
+    docs/gaps.md has the file and what it costs.
+
+An Authors block stands where Categories did, and only on a blog that has more than one:
+it is the nearest thing Ghost has to a second way through the archive. --}}
+<aside class="rail" aria-label="Site">
+<div class="rail-inner">
+
+{{navigation}}
+
+{{#get "posts" filter="featured:true" limit="5"}}
+    {{#if posts}}
+    <div>
+        <h2>Featured</h2>
+        <ul style="--count-w:1ch">
+            {{#foreach posts}}<li><a class="rail-row link-accent t-small" href="{{url}}"><span>{{title}}</span></a></li>{{/foreach}}
+        </ul>
+    </div>
+    {{/if}}
+{{/get}}
+
+{{#get "authors" limit="8" include="count.posts"}}
+    {{!-- A second entry is the test: on a one-author blog this block is a heading over the
+    owner's own name, which tells a reader nothing they did not know from the footer. --}}
+    {{#if authors.[1]}}
+    <div>
+        <h2>Authors</h2>
+        <div class="rail-tags">
+            {{#foreach authors}}<a class="link-accent t-small" href="{{url}}">{{name}}<span class="term-count">{{count.posts}}</span></a>{{/foreach}}
+        </div>
+    </div>
+    {{/if}}
+{{/get}}
+
+{{#get "tags" limit="40" order="count.posts desc" include="count.posts" filter="visibility:public"}}
+    {{#if tags}}
+    <div>
+        <h2>Tags</h2>
+        {{!-- No counts, and lowercased by the sheet: a tag is a word, and thirty words each
+        carrying a number is a table rather than a cloud. --}}
+        <div class="rail-tags lower">
+            {{#foreach tags}}<a class="link-accent t-small" href="{{url}}">{{name}}</a>{{/foreach}}
+        </div>
+    </div>
+    {{/if}}
+{{/get}}
+
+</div>
+</aside>

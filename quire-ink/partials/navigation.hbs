@@ -1,0 +1,19 @@
+{{!-- Ghost renders this for `{{navigation}}`. Two shapes out of one partial, because the
+same links are the rail's rows on a listing page and a flat run under the footer credit.
+
+`rail-row` is what the sheet styles, and it styles the <a> rather than the <li>: the row that
+highlights has to be the thing the pointer is over. The label is wrapped in a <span> so the
+IDE chrome can range it against the divider — a bare text node has nothing to align. --}}
+{{#if isSecondary}}
+{{!-- The footer's own line. It wears `.footer-text`, which is the engine's name for the one
+centred line of meta type down there, rather than a `footer-nav` this theme would have to
+invent a rule for — a class the sheet does not carry renders perfectly and is styled by
+nothing. --}}
+<nav class="footer-text" aria-label="Footer">
+    {{#foreach navigation}}<a href="{{url absolute="true"}}">{{label}}</a>{{#unless @last}} &middot; {{/unless}}{{/foreach}}
+</nav>
+{{else}}
+<nav aria-label="Menu"><ul>
+    {{#foreach navigation}}<li><a class="rail-row link-accent t-small{{#if current}} is-active{{/if}}" href="{{url absolute="true"}}"><span>{{label}}</span></a></li>{{/foreach}}
+</ul></nav>
+{{/if}}
