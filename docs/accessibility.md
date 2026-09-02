@@ -9,11 +9,14 @@ to fix.
 
 ## Colour, all six palettes, both schemes
 
-[`check:contrast`](../tools/checks/contrast.ts) reads the palettes out of the blog engine and
-computes WCAG contrast against each palette's own background — 60 colours, twelve
-combinations — and it is part of `check:all` rather than a thing somebody once ran. The
-palettes are generated, so a re-extract can walk a ratio under the line with nothing on screen
-looking different.
+[`check:contrast`](../tools/checks/contrast.ts) reads the palettes out of `quireink-tokens.css` and
+computes WCAG contrast against each palette's own background — **70 colours across fourteen
+palette and scheme pairs** — and it is part of `check:all` rather than a thing somebody once ran.
+
+It reads **the stylesheet this theme ships**, not the blog engine. That is a correction rather
+than a convenience: the first version imported the engine's presets, which measured what the
+engine intends and not what a reader's screen gets, and it could not run at all without the
+sibling checkout — which is how it failed on the first CI run this repository ever had.
 
 | Role | Floor | Worst measured |
 |---|---|---|

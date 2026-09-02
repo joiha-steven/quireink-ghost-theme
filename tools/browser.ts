@@ -53,20 +53,41 @@ export async function origins(): Promise<boolean> {
 export async function withPage<T>(run: (at: At) => Promise<T>, settle = 2500): Promise<T> {
   const port = 9222 + Math.floor(Math.random() * 500)
   const profile = (await $`mktemp -d`.text()).trim()
+
+  // The two flags every containerised Chrome needs, and neither of them is cosmetic.
+  //
+  // `--no-sandbox`: Chrome's sandbox needs privileges a CI container does not hand it, and
+  // without this it exits before it listens. `--disable-dev-shm-usage`: /dev/shm is 64 MB in a
+  // container and Chrome will use it until it dies.
+  //
+  // Not on macOS, where the sandbox works and turning it off is a real reduction for nothing.
+  const flags = process.platform === 'darwin' ? [] : ['--no-sandbox', '--disable-dev-shm-usage']
+
   const proc = Bun.spawn([CHROME, '--headless=new', '--disable-gpu', '--hide-scrollbars',
-    `--remote-debugging-port=${port}`, '--window-size=1440,1200',
-    `--user-data-dir=${profile}`, 'about:blank'], { stdout: 'ignore', stderr: 'ignore' })
+    ...flags, `--remote-debugging-port=${port}`, '--window-size=1440,1200',
+    `--user-data-dir=${profile}`, 'about:blank'], { stdout: 'pipe', stderr: 'pipe' })
 
   let ws: WebSocket | undefined
   try {
     let target: any
-    for (let i = 0; i < 60 && !target; i++) {
+    // 60 seconds, not 12. A cold runner writing a fresh profile takes longer than a warm laptop,
+    // and the first CI run this repository ever had failed here on one of two identical jobs —
+    // which is the signature of a timeout rather than of a broken command.
+    for (let i = 0; i < 300 && !target; i++) {
       try {
         const list = await (await fetch(`http://127.0.0.1:${port}/json/list`)).json() as any[]
         target = list.find((t) => t.type === 'page')
       } catch { await Bun.sleep(200) }
     }
-    if (!target) throw new Error('Chrome never opened a debugging port')
+    if (!target) {
+      // SAY WHY. The first version threw 'Chrome never opened a debugging port' with stderr set
+      // to 'ignore', so the one place that knew the reason was the one place throwing it away.
+      const why = await new Response(proc.stderr as ReadableStream).text().catch(() => '')
+      throw new Error('Chrome never opened a debugging port after 60s.\n'
+        + `  command: ${CHROME} --headless=new ${flags.join(' ')} --remote-debugging-port=${port}\n`
+        + (why.trim() ? `  chrome said:\n    ${why.trim().split('\n').slice(-8).join('\n    ')}`
+          : '  chrome said nothing at all — check that the binary at CHROME exists.'))
+    }
 
     ws = new WebSocket(target.webSocketDebuggerUrl)
     let id = 0

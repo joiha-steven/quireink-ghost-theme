@@ -1,12 +1,24 @@
 /**
  * Every palette clears WCAG AA against its own background.
  *
- * Text at 4.5:1, accent marks and meta text at 3:1, in all six palettes and both schemes.
- * The colours are the blog engine's, so this is a TRIPWIRE ON A RE-EXTRACT rather than a rule
- * about code here: it goes red when Quire Ink changes a palette in a way this theme should
- * not ship silently.
+ * Text at 4.5:1, links the same, accent marks and meta at 3:1, in all six palettes and both
+ * schemes.
+ *
+ * IT READS THE SHIPPED STYLESHEET, not the blog engine. That is a correction rather than a
+ * convenience: the first version imported the engine's `THEME_PRESETS`, which measured what the
+ * engine intends and not what this theme puts on a reader's screen — and it could not run at
+ * all without the sibling checkout, which is how it failed on the first CI run this repository
+ * ever had.
+ *
+ * Reading `quireink-tokens.css` measures the bytes that actually ship, catches anything the
+ * extractor does to a colour on the way through, and works anywhere. Same argument as
+ * `check:live` counting the rules the BROWSER kept rather than the rules the file contains.
+ *
+ * The colours are still the engine's, so a red result here is usually a tripwire on a
+ * re-extract rather than a bug in this repository.
  */
-import { THEME_PRESETS } from '@/content/themes'
+const css = await Bun.file(
+  new URL('../../quire-ink/assets/css/quireink-tokens.css', import.meta.url)).text()
 
 const hex = (c: string): [number, number, number] => {
   const s = c.replace('#', '')
@@ -25,29 +37,54 @@ const ratio = (a: string, b: string): number => {
   return (x + 0.05) / (y + 0.05)
 }
 
-// `bg` is the ground everything is measured against. `text` is body copy and needs 4.5;
-// the rest are large or decorative and need 3.
-const AGAINST_BG: [string, number][] = [
-  ['text', 4.5], ['heading', 4.5], ['link', 4.5], ['meta', 3], ['accent', 3],
-]
+/**
+ * The selectors the sheet declares a palette under, and what each one is.
+ *
+ * LOOKBEHIND for the boundary, never a consuming group. The blocks are emitted back to back —
+ * `…}[data-palette="mono"]{…}[data-palette="mono"].dark{…}` — so a leading `[}\s]` that the
+ * match CONSUMES eats the delimiter the next block needs, and the scan silently returns every
+ * other block. It found 7 of 14 and the failure looked like a changed stylesheet.
+ */
+function blocks(): Map<string, Record<string, string>> {
+  const out = new Map<string, Record<string, string>>()
+  for (const m of css.matchAll(/(?<=^|[};])((?::root|\.dark|\[data-palette="[a-z]+"\](?:\.dark)?))\{([^}]*)\}/gm)) {
+    const selector = m[1]!
+    const vars: Record<string, string> = {}
+    for (const v of m[2]!.matchAll(/--c-([a-z-]+):(#[0-9a-fA-F]{3,8})/g)) vars[v[1]!] = v[2]!
+    if (!('bg' in vars)) continue
+    const id = selector === ':root' ? 'default/light'
+      : selector === '.dark' ? 'default/dark'
+      : selector.replace(/\[data-palette="([a-z]+)"\](\.dark)?/, (_, p, d) => `${p}/${d ? 'dark' : 'light'}`)
+    out.set(id, vars)
+  }
+  return out
+}
+
+// `text`, `heading` and `link` are read as running text and need 4.5. `meta` is small print
+// and `accent` is a mark rather than a word; both are held to 3, which is the non-text floor.
+const FLOORS: Record<string, number> = {
+  text: 4.5, heading: 4.5, link: 4.5, meta: 3, accent: 3,
+}
+
+const found = blocks()
+if (found.size < 12) {
+  console.error(`contrast: only ${found.size} palette blocks found in quireink-tokens.css,`
+    + ' expected at least 12 (six palettes, light and dark).\n'
+    + '  The sheet is generated — if its shape changed, this parser has to change with it.')
+  process.exit(1)
+}
 
 const bad: string[] = []
+const worst: Record<string, { r: number; where: string }> = {}
 let measured = 0
-for (const preset of THEME_PRESETS) {
-  for (const scheme of ['light', 'dark'] as const) {
-    const t = preset.theme[scheme] as unknown as Record<string, string>
-    const bg = t.bg
-    if (!bg) { bad.push(`${preset.id}/${scheme}: no background colour`); continue }
-    for (const [key, floor] of AGAINST_BG) {
-      const value = t[key]
-      if (!value || !value.startsWith('#')) continue
-      measured++
-      const r = ratio(value, bg)
-      if (r < floor) {
-        bad.push(`${preset.id}/${scheme} ${key} ${value} on ${bg} = ${r.toFixed(2)}:1`
-          + ` (needs ${floor})`)
-      }
-    }
+for (const [where, vars] of found) {
+  for (const [role, floor] of Object.entries(FLOORS)) {
+    const value = vars[role]
+    if (!value) continue
+    measured++
+    const r = ratio(value, vars.bg!)
+    if (!worst[role] || r < worst[role]!.r) worst[role] = { r, where }
+    if (r < floor) bad.push(`${where} ${role} ${value} on ${vars.bg} = ${r.toFixed(2)}:1 (needs ${floor})`)
   }
 }
 
@@ -56,4 +93,7 @@ if (bad.length) {
     + "\n\n  The colours are the blog engine's. Fix them there, then re-extract.")
   process.exit(1)
 }
-console.log(`contrast: ${measured} colours across ${THEME_PRESETS.length} palettes, all AA`)
+const summary = Object.entries(worst)
+  .map(([role, w]) => `${role} ${w.r.toFixed(2)}`).join(' · ')
+console.log(`contrast: ${measured} colours across ${found.size} palette/scheme pairs, all AA`)
+console.log(`          worst measured — ${summary}`)
