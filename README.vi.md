@@ -10,6 +10,7 @@ của engine đó chứ không chép tay.
 Không máy chủ font, không đo đếm hành vi, không một request nào của theme đi ra khỏi tên miền
 của bạn.
 
+[![CI](https://github.com/joiha-steven/quireink-ghost-theme/actions/workflows/ci.yml/badge.svg)](https://github.com/joiha-steven/quireink-ghost-theme/actions/workflows/ci.yml)
 ![Ghost 5+](https://img.shields.io/badge/Ghost-5%2B-15171A?logo=ghost&logoColor=white)
 ![Handlebars](https://img.shields.io/badge/Handlebars-f0772b?logo=handlebarsdotjs&logoColor=white)
 ![gscan: 0 lỗi](https://img.shields.io/badge/gscan-0%20l%E1%BB%97i-22c55e)
