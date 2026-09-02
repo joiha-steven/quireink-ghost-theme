@@ -18,6 +18,10 @@ services:
       database__client: sqlite3
       database__connection__filename: /var/lib/ghost/content/data/ghost.db
       database__useNullAsDefault: "true"
+      # Ghost 5 emails a code the second time anyone signs in from a new device. This stack has
+      # no mail server, so that email cannot arrive and the admin becomes unreachable after the
+      # first login — the seeder gets in once and nobody gets in again. Off here, and only here.
+      security__staffDeviceVerification: "false"
       # A theme is uploaded as a zip in production; here it is a bind mount, so an edit is
       # live on the next request and only a package.json change needs a restart.
       paths__contentPath: /var/lib/ghost/content

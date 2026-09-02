@@ -118,6 +118,16 @@ POSTS = [
     ("Nine guards, and the three bugs they did not catch", "2026-08-30", ["viết", "css"], False),
 ]
 
+def drop_welcome(cookie):
+    """Ghost ships a 'Coming soon' post on a new site. It is Ghost's copy about Ghost, and it
+    sits at the top of every screenshot this repository takes."""
+    _, body = call("/ghost/api/admin/posts/?limit=all&fields=id,slug", cookie=cookie)
+    for post in body.get("posts", []):
+        if post["slug"] in ("coming-soon", "welcome"):
+            call(f"/ghost/api/admin/posts/{post['id']}/", method="DELETE", cookie=cookie)
+            print("removed Ghost's own welcome post")
+
+
 def main():
     setup()
     cookie = login()
@@ -165,6 +175,7 @@ def main():
         ])},
         {"key": "description", "value": "One process. Two SQLite files. No cloud account anywhere in the path."},
     ]}, method="PUT", cookie=cookie)
+    drop_welcome(cookie)
     print("settings")
     print(f"\n  {BASE}/  —  admin {BASE}/ghost/  ({EMAIL} / {PASSWORD})")
 
