@@ -27,6 +27,18 @@ browser, so it is deliberately not in `check:all`. It measures the two things no
 can see — that no rule the theme ships was thrown away by the parser, and that the wide figure
 sits where the engine puts it on both sides of the rail breakpoint.
 
+**To reproduce what CI sees**, run the gate somewhere the engine is not beside it:
+
+```
+rm -rf /tmp/ci-sim && mkdir /tmp/ci-sim && git archive HEAD | (cd /tmp/ci-sim && tar x)
+cd /tmp/ci-sim && bun run check:all
+```
+
+Only `check:generated` may skip. Anything else that needs `../quireink` at check time is a
+guard that cannot run in CI, and the fix is to capture what it needs at EXTRACT time — the
+palettes come out of the shipped stylesheet and the engine's class names out of
+`tools/extract-manifest.json` for exactly that reason.
+
 `check:all` proves the seams hold. It cannot tell you the rail is empty, a figure crosses the
 rail it is supposed to stop beside, or the search overlay answers "no matching posts" to every
 query. All three happened here and all three passed every static check.

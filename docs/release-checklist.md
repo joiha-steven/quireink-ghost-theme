@@ -45,6 +45,19 @@ irreversible price for a rule that does not exist here.
 audited including the three that only exist after a click; every control named; one defect
 found and fixed (the listing had no `h1`); one item fails and is upstream.
 
+**CI runs everything, including the two guards that open a browser.**
+[`.github/workflows/ci.yml`](../.github/workflows/ci.yml) runs the static gate on every push,
+and `check:live` and `check:a11y` against a matrix of Ghost 5 and Ghost 6 — because a
+verification tool that depends on somebody remembering to run it is the failure mode every
+guard in `tools/checks/` was written to kill.
+
+The first run found two things, and both were the tooling rather than the theme: two checks
+read the blog engine at check time and there is no sibling checkout on a runner. Both read
+committed data now — the palettes out of the shipped stylesheet, the engine's class names out
+of `tools/extract-manifest.json` — which also makes them measure what ships rather than what
+the engine intends. `bun run check:all` in a copy of the tree with no `../quireink` beside it
+reproduces the CI condition exactly, and that is worth doing before touching a guard.
+
 **The zip is one command, and it installs.** `bun run zip` runs every static guard first and
 refuses to package if any is red. Last build: **530 KB, 54 files, exactly one top-level
 directory**. It goes into `.tmp/`, which is gitignored — a release artefact committed to the
@@ -80,9 +93,6 @@ displays.
 * **A theme screenshot.** Ghost does not require one to install a theme and gscan does not ask
   for it. A marketplace submission would. `tools/shot.sh` already renders at any size against
   the seeded stack.
-* **A CI run.** [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) runs `check:all` on
-  every push. The two browser guards are not in it: they need a Ghost and a Chrome, and a
-  guard that is flaky in CI is a guard people learn to ignore.
 * **Translation.** English only, as the WordPress port decided for itself. Ghost themes
   translate through `locales/*.json` and `{{t}}`; every string this theme prints is either in a
   template or generated from the engine's `locales/en.ts`, so the work is bounded and has not

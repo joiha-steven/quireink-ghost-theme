@@ -35,22 +35,21 @@ const EXCEPTIONS: Record<string, string> = {
  * `.byline`, `.info-terms`, `.term-list`, `.taxo-rule` are in the engine's own markup and in
  * none of its rules — they are semantic hooks, styled by the block around them. Copying that
  * markup is the point of this theme, so the test is not "is there a rule" but "is this a name
- * Quire Ink uses". Read out of the engine's source, so a name it drops stops being allowed
- * here on the next run.
+ * Quire Ink uses".
+ *
+ * The list is CAPTURED BY THE EXTRACTOR into `tools/extract-manifest.json`, not read out of
+ * the sibling here. Reading it live meant this guard could not run without a checkout of the
+ * engine, and on the first CI run it did not: `enginePrints` came back empty and four names the
+ * engine prints were reported as orphans.
  */
-const QUIRE = join(import.meta.dir, '..', '..', '..', 'quireink', 'src', 'web')
-const enginePrints = new Set<string>()
-try {
-  for (const f of await readdir(QUIRE)) {
-    if (!f.endsWith('.ts') || f.endsWith('.test.ts')) continue
-    const text = await Bun.file(join(QUIRE, f)).text()
-    for (const m of text.matchAll(/class="([^"$]*)"/g)) {
-      for (const c of m[1]!.split(/\s+/)) if (c && /^[a-z][\w-]*$/.test(c)) enginePrints.add(c)
-    }
-  }
-} catch {
-  console.log('classes: no quireink checkout beside this one — engine names not checked')
+const manifest = await Bun.file(new URL('../extract-manifest.json', import.meta.url)).json()
+  .catch(() => null) as { enginePrints?: string[] } | null
+if (!manifest?.enginePrints) {
+  console.error('classes: tools/extract-manifest.json has no `enginePrints` list.\n'
+    + '  Run `bun run extract` against a Quire Ink checkout to capture it.')
+  process.exit(1)
 }
+const enginePrints = new Set(manifest.enginePrints)
 
 const sheets: string[] = []
 for (const f of await readdir(join(THEME, 'assets', 'css'))) {
