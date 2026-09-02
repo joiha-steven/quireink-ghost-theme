@@ -6,6 +6,17 @@ and 1 warning**, and that warning is [ADR 0002](decisions/0002-ship-the-faces.md
 
 ## Settled
 
+**The repository is public**, and the history was read before it was opened rather than after.
+Seven commits, 106 files ever added, swept for GitHub tokens, OpenAI and AWS keys, private key
+headers, Slack and Google credentials: nothing. The only credential in the tree is
+`quire-ink-dev-2026`, which is the throwaway local Ghost's password and is documented as one —
+`dev/down.sh` deletes the database it belongs to.
+
+**The author is declared** the way the WordPress port declares it in `style.css`: the owner's
+name, `quireink.com`, and the address already on every commit of both public sibling
+repositories. gscan requires an email, and a real one that is already public beats an invented
+one that looks real.
+
 **Both ends of the version floor.** `engines.ghost` says `>=5.0.0`, and a floor is a claim
 about both ends: the theme has to run on the oldest Ghost it admits and on the newest one
 anybody will install it on today. `dev/docker-compose.yml` is Ghost 5 on 2368;
@@ -53,22 +64,12 @@ displays.
 
 ## Open, and only the owner can close them
 
-* **`author.email` in `quire-ink/package.json` says `hello@quireink.com`.** gscan requires the
-  field, so something had to go there, and that address was written to satisfy the check rather
-  than because anybody confirmed it exists. **It is the one field in a shipped file that nobody
-  has verified.** An address in a file proves nothing about an address on a server.
-
 * **The commercial permission.** The engine carries an
   [additional permission](https://github.com/joiha-steven/quireink/blob/main/LICENSE-EXCEPTION.md)
   letting anyone run and charge for *unmodified* Quire Ink, including selling hosting on it.
   Nothing equivalent is shipped here, so as it stands this theme is noncommercial-use only, and
   somebody running a paid Ghost host cannot offer it. Extending it is a commercial decision and
   not a technical one.
-
-* **The repository is not public.** `github.com/joiha-steven/quireink-ghost-theme` answers 404
-  today. The two siblings it links to answer 200. Publishing a repository publishes what it
-  used to contain as well as what it contains — the WordPress port was opened only after 22
-  commits of history were read for keys, and the same read is owed here.
 
 * **No demo.** `demo.quireink.com` is the blog engine running itself and is *not* this theme, so
   the `demo` field was removed from `package.json` rather than left pointing at a different

@@ -7,10 +7,11 @@
   },
   "license": "PolyForm-Noncommercial-1.0.0",
   "author": {
-    "name": "Quire Ink",
-    "url": "https://quireink.com",
-    "email": "hello@quireink.com"
+    "name": "Tr\u1ea7n M\u1ea1nh H\u00f9ng",
+    "email": "hung.tran@joiha.com",
+    "url": "https://quireink.com"
   },
+  "repository": "https://github.com/joiha-steven/quireink-ghost-theme",
   "keywords": [
     "ghost-theme",
     "blog",
