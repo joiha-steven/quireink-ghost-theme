@@ -146,6 +146,28 @@ const ALIASES: [string, string[]][] = [
   ['.callout', ['.kg-callout-card']],
 ]
 
+/**
+ * Split a selector list on its TOP-LEVEL commas only.
+ *
+ * `.prose > :is(figure.img-wide,.video-wide):nth-child(-n+2)` is ONE selector with a comma
+ * inside it. Split naively it becomes two fragments with unmatched parentheses, and a browser
+ * silently drops a rule whose selector will not parse — so the rule is simply absent and
+ * nothing anywhere says so.
+ */
+function splitSelectors(list: string): string[] {
+  const out: string[] = []
+  let depth = 0
+  let current = ''
+  for (const ch of list) {
+    if (ch === '(' || ch === '[') depth++
+    else if (ch === ')' || ch === ']') depth--
+    if (ch === ',' && depth === 0) { out.push(current); current = ''; continue }
+    current += ch
+  }
+  out.push(current)
+  return out.map((x) => x.trim()).filter(Boolean)
+}
+
 function aliasSheet(sheet: string): { css: string; count: number } {
   // Comments first, and not as tidiness: the engine's sheet carries prose comments with
   // `.prose` and `.callout` inside them, and a selector regex run over the raw text pulled
@@ -180,7 +202,7 @@ function aliasSheet(sheet: string): { css: string; count: number } {
       if (!decls) continue
       for (const [from, tos] of ALIASES) {
         const token = new RegExp(from.replace('.', '\\.') + '(?![\\w-])')
-        const parts = m[2]!.split(',').map((x) => x.trim()).filter((x) => token.test(x))
+        const parts = splitSelectors(m[2]!).filter((x) => token.test(x))
         if (parts.length === 0) continue
         for (const to of tos) {
           const selectors = parts
@@ -198,7 +220,14 @@ function aliasSheet(sheet: string): { css: string; count: number } {
   return { css: out.join('\n'), count }
 }
 
-const alias = aliasSheet(PUBLIC_CSS.replace(IDE_SLICE, '\n'))
+// BOTH HALVES, and missing the second one was a bug a reader could see. `singleRailCss()`
+// redefines what a wide figure is once the contents rail is in the gutter — flush with the
+// column on the left, nosing RIGHT by one rail width into the gutter the rail is not using,
+// because the alternative collides with the rail. That rule is emitted into the tokens sheet
+// rather than written in the static one, so scanning only `PUBLIC_CSS` produced a Koenig
+// figure that still had symmetric negative margins and crossed the rail's own edge by 18px at
+// 1440. Everything measured symmetric, which is exactly why it took an eye to catch.
+const alias = aliasSheet([PUBLIC_CSS.replace(IDE_SLICE, '\n'), tokens].join('\n'))
 if (alias.count === 0) {
   throw new Error('extract: no alias rules were produced.\n'
     + '  Quire Ink no longer carries .img-wide or .callout under those names,\n'

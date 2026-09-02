@@ -15,13 +15,21 @@ bun run check:all
 ```
 
 Seven static guards — `filesize` · `order` · `bridge` · `contrast` · `classes` · `generated` ·
-`gscan`. Seconds. `check:generated` skips with a warning when there is no Quire Ink checkout
-beside this one.
+`gscan`. Seconds, offline. `check:generated` skips with a warning when there is no Quire Ink
+checkout beside this one.
 
-`check:all` proves the seams hold. It cannot tell you the rail is empty, a figure is not
-actually wide, or the search overlay answers "no matching posts" to every query. All three
-happened here, all three passed every check, and the first two were obvious in a screenshot
-while the third needed the network panel.
+```
+bun run check:live
+```
+
+The eighth, and the only one that opens the page: it needs `dev/up.sh` and drives a real
+browser, so it is deliberately not in `check:all`. It measures the two things nothing static
+can see — that no rule the theme ships was thrown away by the parser, and that the wide figure
+sits where the engine puts it on both sides of the rail breakpoint.
+
+`check:all` proves the seams hold. It cannot tell you the rail is empty, a figure crosses the
+rail it is supposed to stop beside, or the search overlay answers "no matching posts" to every
+query. All three happened here and all three passed every static check.
 
 ```
 dev/up.sh                  # Ghost on http://localhost:2368, first run about a minute
@@ -52,6 +60,7 @@ a `margin` shorthand in `bridge.css` had zeroed the alias sheet's negative side 
 |---|---|
 | A colour, size or breakpoint is wrong | `tools/extract.ts`, then the engine's `src/web/*.css.ts` — never edit the generated CSS |
 | A Koenig card looks wrong | `quire-ink/assets/css/bridge.css`, then `quireink-alias.css` (generated) |
+| A wide figure sits wrong beside the rail | `quireink-alias.css` — the rules under `@media (min-width:1272px)` come from the engine's `singleRailCss()`, which is in the GENERATED half |
 | The contents rail, the timeline, the word count | `quire-ink/assets/js/ghost-bridge.js` — all three are built there, before first paint |
 | Search, sign-up or tracking | the fetch shim in `ghost-bridge.js`, and [ADR 0005](./docs/decisions/0005-shim-not-fork.md) |
 | An article's furniture — byline, tags, read next | `quire-ink/post.hbs` |
@@ -74,6 +83,10 @@ a `margin` shorthand in `bridge.css` had zeroed the alias sheet's negative side 
   does not come. One marked exception, and it carries its own assertion.
 - **`bridge.css` translates, it never decides.** No hex, no colour function, no length that is
   not `0`/`1px`/`2px`/`100%`. Prefer generating an alias rule over writing a new one.
+- **The alias generator reads BOTH halves of the sheet — the static one AND the generated
+  tokens.** The engine puts its rail-aware geometry in the generated half, so scanning only
+  `PUBLIC_CSS` silently drops it and the wide figure crosses the rail. Every measurement of it
+  still comes out symmetric, which is why `check:live` exists.
 - **Use `margin-block`, never the `margin` shorthand, on anything that is also a `.kg-width-*`.**
   A shorthand writes `margin-left:0` at the same specificity as the generated alias and, coming
   later, wins.

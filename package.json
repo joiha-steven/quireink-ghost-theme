@@ -12,6 +12,7 @@
     "check:contrast": "bun tools/checks/contrast.ts",
     "check:classes": "bun tools/checks/dead-classes.ts",
     "check:generated": "bun tools/checks/generated-in-sync.ts",
-    "check:gscan": "bun tools/checks/gscan.ts"
+    "check:gscan": "bun tools/checks/gscan.ts",
+    "check:live": "bun tools/checks/live.ts"
   }
 }

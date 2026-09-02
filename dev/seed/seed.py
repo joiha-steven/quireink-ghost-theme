@@ -70,7 +70,8 @@ TOGGLE = ('<div class="kg-card kg-toggle-card" data-kg-toggle-state="close">'
 WIDE = ('<figure class="kg-card kg-image-card kg-width-wide kg-card-hascaption">'
         '<img class="kg-image" src="https://images.unsplash.com/photo-1519682337058-a94d519337bc?w=1400&q=70" '
         'alt="A wide photograph" loading="lazy">'
-        '<figcaption>A wide figure, which noses into both gutters at the width that has them.'
+        '<figcaption>A wide figure. Beside the contents rail it stays flush with the column '
+        'and noses right into the free gutter; with no rail it noses both ways.'
         '</figcaption></figure>')
 
 LOREM = [

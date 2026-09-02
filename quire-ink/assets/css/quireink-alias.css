@@ -9,3 +9,7 @@
 .book-flow.prose figure.kg-width-wide{width:100%;max-width:100%;margin-left:auto;margin-right:auto}
 .book-flow.prose figure.kg-width-full{width:100%;max-width:100%;margin-left:auto;margin-right:auto}
 @media print{.prose .kg-callout-card{break-inside:avoid}}
+@media (min-width:1272px){.prose figure.kg-width-wide{width:calc(100% + var(--rail-w) + var(--rail-gap));max-width:none;margin-left:0;margin-right:calc(-1 * (var(--rail-w) + var(--rail-gap)))}}
+@media (min-width:1272px){.prose figure.kg-width-full{width:calc(100% + var(--rail-w) + var(--rail-gap));max-width:none;margin-left:0;margin-right:calc(-1 * (var(--rail-w) + var(--rail-gap)))}}
+@media (min-width:1272px){.prose > :is(figure.kg-width-wide,.video-wide):nth-child(-n+2){width:100%;margin-right:0}}
+@media (min-width:1272px){.prose > :is(figure.kg-width-full,.video-wide):nth-child(-n+2){width:100%;margin-right:0}}

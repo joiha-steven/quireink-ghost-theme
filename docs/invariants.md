@@ -16,6 +16,7 @@ visible in review.
 | 5 | **A class a template prints reaches a rule — or the engine prints it too.** The sheet already carries `.listing-head`, `.pager`, `.empty` and a few hundred more, and a name it does not carry renders perfectly and is styled by nothing | every template under [`quire-ink/`](../quire-ink) | `check:classes` |
 | 6 | **Quire Ink is READ ONLY.** This repository imports and reads its modules and writes nothing to it | [`tools/tsconfig.json`](../tools/tsconfig.json) | nothing — procedural, see [`../CLAUDE.md`](../CLAUDE.md) |
 | 7 | **Ghost's own linter is clean.** Zero errors; every warning that stands is listed by name with the decision that allows it | [`quire-ink/`](../quire-ink) | `check:gscan` |
+| 8 | **The page is right on the page.** No rule the theme ships is dropped by the parser, the wide figure sits where the engine puts it on both sides of the rail breakpoint, and no template overflows at 375px | the running theme | `check:live` — needs `dev/up.sh`, so it is NOT in `check:all` |
 
 ## Why 1 is the first one
 
@@ -54,6 +55,16 @@ first:
   gscan pointed out that `.kg-width-wide` has to be styled in a Ghost theme's CSS — and behind
   that rule is a reader with JavaScript off, for whom a wide figure was not wide. The engine's
   own declarations are lifted and re-emitted under Koenig's selector now.
+
+  **And they are lifted from BOTH halves of the sheet**, which is the correction that cost a
+  reader something visible. `singleRailCss()` redefines what a wide figure is once the contents
+  rail is in the gutter — flush with the column on the left, nosing RIGHT by one rail width into
+  the gutter the rail is not using, because anything else collides with the rail. That rule is
+  emitted into the GENERATED tokens sheet rather than written in the static one, so an extractor
+  that scanned only `PUBLIC_CSS` produced a Koenig figure that kept its symmetric negative
+  margins and crossed the rail's own edge by 18px at 1440.
+
+  Every number about it measured symmetric and correct. It took somebody opening the page.
 
 ## Why 6 has no guard
 

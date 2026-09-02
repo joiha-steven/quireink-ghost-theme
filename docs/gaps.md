@@ -78,6 +78,17 @@ the overlay.
 
 On a blog of several thousand posts it will be worth revisiting.
 
+## A wide figure is two different shapes, on purpose
+
+Below the rail breakpoint it noses into both gutters by `4vw`, capped at `4rem`. Above it —
+once the contents rail is standing in the left gutter — it is flush with the column on the left
+and noses RIGHT by one rail width plus the gap, into the gutter the rail is not using.
+
+That is the engine's own rule and not a compromise made here: symmetric noses beside a rail put
+the picture over the rail's edge. The first two blocks of an article are the exception and stay
+at column width, because that is where the info panel sits on the other side and a photograph
+with "Tags: [x]" printed across it is the worse of the two failures.
+
 ## An open licence obligation, not a gap in the design
 
 The six typefaces are SIL Open Font License 1.1, and the OFL asks that its text travel with the
